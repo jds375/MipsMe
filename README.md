@@ -13,13 +13,10 @@ The fancy chip inside your computer is made up of millions of transistors, wires
 In order to perform meaningful calculations we need to be able to use memory to store our results and perform intermediate steps. Memory is stored in two spots in hardware, the registers and the stack. Most computers have 32 registers that are each capable of holding a 32-bit number. These registers can be accessed quickly and allow for fast computation. However, they are expensive in terms of hardware. This is problematic since any powerful program is going to need to work with way more than 32 instances of memory. In order to accomodate the billions of numbers involved in computation, we need another form of memory that is more scalable than registers. This form of memory is the stack. The stack is capable of holding
 huge amounts of memory. However, accessing this memory is more costly and not as efficient as using registers. A programmer needs to use both of these types of memory when writing a program in assembly. Below we will discuss when and where to use them. But for now, this explanation is sufficient. Just remember, registers are fast and few, whereas stack is slow and large. 
 
-Math and Logic: Performing Basic Arithmetic 
+###Math and Logic: Performing Basic Arithmetic###
 
-The first command we will discuss is 'add $x, $y, $z'. This command takes the contents of register y and adds it to the contents of register z. The result
-is then stored in register x. Thus, we might have 'add $3, $10, $31'. This command adds the numbers that registers 10 and 31 hold, then stores the result
-in register 3 (overriding whatever is already there). When referring to the contents of a register we use the $ symbol. 
-These types of commands that perform an arithmetic operation using 3 registers are known as R-type
-arithmetic commands. They use perform the operation using the second and third argument and then store the result in the first. A list of such is below:
+The first command we will discuss is <i>add $x, $y, $z</i>. This command takes the contents of register y and adds it to the contents of register z. The result is then stored in register x. Thus, we might have <i>add $3, $10, $31</i>. This command adds the numbers that registers 10 and 31 hold, then stores the result in register 3 (overriding whatever is already there). When referring to the contents of a register we use the $ symbol. These types of commands that perform an arithmetic operation using 3 registers are known as R-type arithmetic commands. They use perform the operation using the second and third argument and then store the result in the first. A list of such is below:
+```
 add $x, $y, $z - addition
 sub $x, $y, $z - subtraction
 or $x, $y, $z - bitwise OR [1]
@@ -29,6 +26,7 @@ nor $x, $y, $z - bitwise NOR [4]
 sllv $x, $y, $z - shift-left logical ($z specifies the spaces to shift $y by) [5]
 srlv $x, $y, $z - shift-right logical ($z specifies the spaces to shift $y by) [6]
 slt $x, $y, $z - set less than (sets $x to 1 if $y<$z, otherwise $x is set to 0) [7]
+```
 Don't worry if you aren't sure how bitwise operations and shifts work. It's just important to know that they are available for now.
 
 Another very similar type of command is an I-type arithmetic command. These are the same as R-type arithmeic commands, except the third argument is no
