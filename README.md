@@ -1,17 +1,8 @@
-MipsMe
-======
-A Basic Introduction to Assembly with MIPS
+#A Basic Introduction to Assembly with MIPS#
 
-Introduction
+###Introduction###
 
-Computer programming has come a long way in the last 40 years. We have progressed from flimsy punchcards and faulty timesharing machines to
-high-level programming languages that are almost completely divorced from their underlying computer hardware. This is fantastic and has enabled developers
-to write powerful programs in easy-to-maintain and easy-to-read languages. As a result, fewer and fewer programmers are learning how to interface
-directly with hardware and understand the basics of machine code. This is unfortunate since there are many valuable lessons that can be learned from
-knowing the inner-workings of a computer and how machine code (assembly) functions. Moreover, one can't really appreciate the functionality and
-usability of modern languages without knowing where it all started. So, I decided to compile a brief (and interactive!) tutorial on assembly code.
-This tutorial bypasses the many complications in learning assembly by abstracting away complicated instruction sets, addressing issues, and
-other such problems. 
+Computer programming has come a long way in the last 40 years. We have progressed from flimsy punchcards and faulty timesharing machines to high-level programming languages that are almost completely divorced from their underlying computer hardware. This is fantastic and has enabled developers to write powerful programs in easy-to-maintain and easy-to-read languages. As a result, fewer and fewer programmers are learning how to interface directly with hardware and understand the basics of machine code. This is unfortunate since there are many valuable lessons that can be learned from knowing the inner-workings of a computer and how machine code (assembly) functions. Moreover, one can't really appreciate the functionality and usability of modern languages without knowing where it all started. So, I decided to compile a brief (and interactive!) tutorial on assembly code. This tutorial bypasses the many complications in learning assembly by abstracting away complicated instruction sets, addressing issues, and other such problems. 
 
 The MIPS Assembly Language
 
