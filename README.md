@@ -15,24 +15,22 @@ huge amounts of memory. However, accessing this memory is more costly and not as
 
 ###Math and Logic: Performing Basic Arithmetic###
 
-The first command we will discuss is <i>add $x, $y, $z</i>. This command takes the contents of register y and adds it to the contents of register z. The result is then stored in register x. Thus, we might have <i>add $3, $10, $31</i>. This command adds the numbers that registers 10 and 31 hold, then stores the result in register 3 (overriding whatever is already there). When referring to the contents of a register we use the $ symbol. These types of commands that perform an arithmetic operation using 3 registers are known as R-type arithmetic commands. They use perform the operation using the second and third argument and then store the result in the first. A list of such is below:
+The first command we will discuss is <i>add $x, $y, $z</i>. This command takes the contents of register y and adds it to the contents of register z. The result is then stored in register x. Thus, we might have <i>add $3, $10, $31</i>. This command adds the numbers that registers 10 and 31 hold, then stores the result in register 3 (overriding whatever is already there). When referring to the contents of a register we use the $ symbol. These types of commands that perform an arithmetic operation using 3 registers are known as R-type arithmetic commands. They perform the operation using the second and third argument and then store the result in the first. A list of such is below:
 ```
 add $x, $y, $z - addition
 sub $x, $y, $z - subtraction
-or $x, $y, $z - bitwise OR [1]
-and $x, $y, $z - bitwise AND [2]
-xor $x, $y, $z - bitwise XOR [3]
-nor $x, $y, $z - bitwise NOR [4]
-sllv $x, $y, $z - shift-left logical ($z specifies the spaces to shift $y by) [5]
-srlv $x, $y, $z - shift-right logical ($z specifies the spaces to shift $y by) [6]
-slt $x, $y, $z - set less than (sets $x to 1 if $y<$z, otherwise $x is set to 0) [7]
+or $x, $y, $z - bitwise OR
+and $x, $y, $z - bitwise AND
+xor $x, $y, $z - bitwise XOR
+nor $x, $y, $z - bitwise NOR
+sllv $x, $y, $z - shift-left logical ($z specifies the spaces to shift $y by)
+srlv $x, $y, $z - shift-right logical ($z specifies the spaces to shift $y by) 
+slt $x, $y, $z - set less than (sets $x to 1 if $y<$z, otherwise $x is set to 0)
 ```
 Don't worry if you aren't sure how bitwise operations and shifts work. It's just important to know that they are available for now.
 
-Another very similar type of command is an I-type arithmetic command. These are the same as R-type arithmeic commands, except the third argument is no
-longer a register. Instead, it is a plain number. This number will be used instead of the contents of $z. We differentiate these types of commands
-by adding the letter 'i' to the end of the function name and omitting the register delimiter from the third argument. For example, the command
-'addi $4, $6, 5' takes the contents of register 6 and adds 5 to it then stores the result in register 4. A list of these commands is below:
+Another very similar type of command is an I-type arithmetic command. These are the same as R-type arithmeic commands, except the third argument is no longer a register. Instead, it is a plain number. This number will be used instead of the contents of $z. We differentiate these types of commands by adding the letter 'i' to the end of the function name and omitting the register delimiter from the third argument. For example, the command <i>addi $4, $6, 5</i> takes the contents of register 6 and adds 5 to it then stores the result in register 4. A list of these commands is below:
+```
 addi $x, $y, z - addition (there is no subtraction command here since we can simply let z be a negative number)
 ori $x, $y, z - bitwise OR
 andi $x, $y, z - bitwise AND
@@ -40,6 +38,7 @@ xori $x, $y, z - bitwise XOR
 nori $x, $y, z - bitwise NOR
 sll $x, $y, z - shift-left logical
 srl $x, $y, z - shift-right logical
+```
 
 We can now write a simple program using these commands. This program will check if at the value in $2 or the value in $3 is greater than the sum of 
 the values in $2 and $3.
