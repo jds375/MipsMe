@@ -61,11 +61,9 @@ or $1, $5, $6 # Stores a 1 in $1 if either or both $2 and $3 are larger than the
 ```
 We can thus modify our program by changing the third arugment in the first two addi commands. Congrats. We can now perform simple logic and math using assembly.
 
-Code Blocks: Sections
-In nearly all programming languages blocks of code are separated into methods, which are further separated into smaller blocks via comments and other
-tools. Features like this do not explicitly exist in assembly. Instead, we have sections. A section is essentially an in-line delimiter marking where
-a certain section of the code begins. For example, we can modify the example above and insert sections. A section is a one-word name followed by
-a colon. We might have:
+###Code Blocks: Sections###
+In nearly all programming languages blocks of code are separated into methods, which are further separated into smaller blocks via comments and other tools. Features like this do not explicitly exist in assembly. Instead, we have sections. A section is essentially an in-line delimiter marking where a certain section of the code begins. For example, we can modify the example above and insert sections. A section is a one-word name followed by a colon. We might have:
+```
 setup:
 addi $2, $0, 5
 addi $3, $0, -2
@@ -75,32 +73,25 @@ slt $5, $4, $2
 slt $6, $4, $3
 result:
 or $1, $5, $6
+```
+We have thus broken our code into three sections. The code will function in the exact same way. These section delimiters are useful since they can further clarify code. However, they serve a much more important purpose. There are assembly commands that take a section delimiter name as an argument. We take a look at these commands below.
 
-We have thus broken our code into three sections. The code will function in the exact same way. These section delimiters are useful since they can further
-clarify code. However, they serve a much more important purpose. There are assembly commands that take a section delimiter name as an argument. We take a
-look at these commands below.
-
-Control Flow: If-Statements and Branches
-One of the cornerstones of programming is the if-statement. Almost every program has them and they are very natural to use. In assembly, this doesn't
-directly exist. Instead, there are branches. A branch command takes three arguments. The first is the name of a section. The second two arguments
-are registers. The command then does some comparison using the second two arguments. If the result is true, then the computer will 'jump' to the command
-following the section specified as argument one. If the result is false, then the code continues to execute sequentially. Let's first take a look at the
-command 'beq exit, $2, $3'. This command checks if the contents of $2 and $3 are the same. If they are, then the program will jump to the section
-labeled 'exit'. Otherwise, the code will simply continue to execute in order. We have two main branch commands:
+###Control Flow: If-Statements and Branches###
+One of the cornerstones of programming is the if-statement. Almost every program has them and they are very natural to use. In assembly, this doesn't directly exist. Instead, there are branches. A branch command takes three arguments. The first is the name of a section. The second two arguments are registers. The command then does some comparison using the second two arguments. If the result is true, then the computer will 'jump' to the command following the section specified as argument one. If the result is false, then the code continues to execute sequentially. Let's first take a look at the command 'beq exit, $2, $3'. This command checks if the contents of $2 and $3 are the same. If they are, then the program will jump to the section labeled 'exit'. Otherwise, the code will simply continue to execute in order. We have two main branch commands:
+```
 beq x, $y, $z - Jumps to section x if the contents of $y and $z are the same (otherwise continue in order)
 bne x, $y, $z - Jumps to section x if the contents of $y and $z are different (otherwise continue in order)
-
-We see that branches allow us to control the flow of our code. They are very similar to if-statements. (In this tutorial we ignore delay slots).
-Consider the following code:
+```
+We see that branches allow us to control the flow of our code. They are very similar to if-statements. (In this tutorial we ignore delay slots). Consider the following code:
+```
 addi $2, $0, 5 # Set $2 to contain the number 5
 increment:
 addi $3, $0, 1 # Increment the contents of $3 by 1
 bne increment, $2, $3 # Jump to the increment: section if the contents of $2 and $3 are not equal, otherwise continue
 addi $1, $0, 1 # Set $1 to contain the number 1
+```
 
-This code will increment the contents of $3 by 1 until it is equal to the contents of $2. When they are equal the contents of $1 gets set to 1.
-It is easy to see how it executes. We jump to the section 'increment' if $2 and $3 are not equal in the bne command. When we go back to this section
-we call addi again, thus incrementing $3. The process loops until we are done. 
+This code will increment the contents of $3 by 1 until it is equal to the contents of $2. When they are equal the contents of $1 gets set to 1. It is easy to see how it executes. We jump to the section 'increment' if $2 and $3 are not equal in the bne command. When we go back to this section we call addi again, thus incrementing $3. The process loops until we are done. 
 
 Now, we have done some actual programming. We have learned how to implement control-flow into our assembly code. This will allow us to write code that
 can emulate structures such as if-statemens and loops.
