@@ -45,7 +45,7 @@ We can now write a simple program using these commands. This program will check 
 add $4, $2, $3 # Stores $2+$3 in $4
 slt $5, $4, $2 # Stores a 1 in $5 if $4 is less than $2, 0 otherwise
 slt $6, $4, $3 # Stores a 1 in $6 if $4 is less than $3, 0 otherwise
-or $1, $5, $6 # Stores a 1 in $1 if either or both $2 and $3 are 1, 0 otherwise
+or $1, $5, $6 # Stores a 1 in $1 if either or both $2 and $3 are larger than the sum in $4, 0 otherwise
 ```
 
 Our program works very simply. We compute the sum of $2 and $3 and store the result in $4. We then store a 1 in $5 if that sum is less than $2. Likewise, we store a 1 in $6 if that sum is less than $3. (0's are stored otherwise). Finally, we store a 1 in $1 if either $5 or $6 contained a 1. Thus, $1 will contain a 1 if either $2 or $3 was larger than their sum. 
@@ -57,7 +57,7 @@ addi $3, $0, -2 # Likewise
 add $4, $2, $3 # Stores $2+$3 in $4
 slt $5, $4, $2 # Stores a 1 in $5 if $4 is less than $2, 0 otherwise
 slt $6, $4, $3 # Stores a 1 in $6 if $4 is less than $3, 0 otherwise
-or $1, $5, $6 # Stores a 1 in $1 if either or both $2 and $3 are 1, 0 otherwise
+or $1, $5, $6 # Stores a 1 in $1 if either or both $2 and $3 are larger than the sum in $4, 0 otherwise
 ```
 We can thus modify our program by changing the third arugment in the first two addi commands. Congrats. We can now perform simple logic and math using assembly.
 
