@@ -96,48 +96,41 @@ This code will increment the contents of $3 by 1 until it is equal to the conten
 Now, we have done some actual programming. We have learned how to implement control-flow into our assembly code. This will allow us to write code that
 can emulate structures such as if-statemens and loops.
 
-More Control Flow: Jumps and Loops
-In addition to branches there are also commands that let us jump without doing a comparison. The first such command is simply 'j x'. This will have the
-code jump to section x. An example might be 'j increment'. This will jump to the section labeled increment immediately. Another such command is jal. It
-stands for jump-and-link. It functions exactly like 'j'. It will jump to the section of code specified as its first argument. However, in addition jal
-will store the line number of the next sequential command in register 31 (for the experts: this is a simplification. It doesn't actually store the line
-to the next command, it stores the hex address. This complicates the explanation, but isn't necessary to get the point across). Why might we want to
-store the line of a command in a register? This is what the command 'jr' does. An example is 'jr $31' or 'jr $5'. This command will jump to the line of
-code specified inside of the given register. Our complete list is:
+###More Control Flow: Jumps and Loops###
+In addition to branches there are also commands that let us jump without doing a comparison. The first such command is simply 'j x'. This will have the code jump to section x. An example might be 'j increment'. This will jump to the section labeled increment immediately. Another such command is jal. It stands for jump-and-link. It functions exactly like 'j'. It will jump to the section of code specified as its first argument. However, in addition jal will store the line number of the next sequential command in register 31 (for the experts: this is a simplification. It doesn't actually store the line to the next command, it stores the hex address. This complicates the explanation, but isn't necessary to get the point across). Why might we want to store the line of a command in a register? This is what the command 'jr' does. An example is 'jr $31' or 'jr $5'. This command will jump to the line of code specified inside of the given register. Our complete list is:
+```
 j x # Jumps to the section x
 jal x # Jumps to the section x and stores the next line number of the next command in $31
 jr $x # Jumps to the line of code indexed by the number contained in $x
-
+```
 Jumps are useful in the same way branches are. Later, we will write some more complicated programs that will use jumps.
 
-More Memory: How to Use the Stack
-So far all of the examples we have gone over and all of our tools can only utilize 32 different number values. This is because we only have 32 registers
-to store numbers. We can solve this problem with the stack. MIPS has commands that let us take the value in a register and store it in a large pool
-of memory that can hold thousands of numbers. Likewise, MIPS has commands that let us pull values from the stack and load them into our registers. Thus,
-we can use as much memory as we need.
+###More Memory: How to Use the Stack###
+So far all of the examples we have gone over and all of our tools can only utilize 32 different number values. This is because we only have 32 registers to store numbers. We can solve this problem with the stack. MIPS has commands that let us take the value in a register and store it in a large pool of memory that can hold thousands of numbers. Likewise, MIPS has commands that let us pull values from the stack and load them into our registers. Thus, we can use as much memory as we need.
 
-The first command is the store command. It has the form 'sb $x, $y'. It takes the value held in $x and puts it in the stack at the index in $y (this is yet
-another simplification that ignores addressing and byte/word distinction, but this is fine for our purposes). The counterpart to sb is lb. It thas the
-form 'lb $x, $y'. It takes the value stored in the stack at the index in $y and loads it into register $x. We thus have the commands:
+The first command is the store command. It has the form 'sb $x, $y'. It takes the value held in $x and puts it in the stack at the index in $y (this is yet another simplification that ignores addressing and byte/word distinction, but this is fine for our purposes). The counterpart to sb is lb. It thas the form 'lb $x, $y'. It takes the value stored in the stack at the index in $y and loads it into register $x. We thus have the commands:
+```
 sb $x, $y - Stores the value at $x in the stack at the index in $y
 lb $x, $y - Loads the value in the stack at the index in $y into register $x
-
+```
 We can create a simple program to put a bunch of incremental values in the stack as follows:
+```
 addi $1, $0, 0 # Initializes $1 to hold 0
 loop:
 sb $1, $1 # Stores the value in $1 at the index in $1
-addi $1, $0, 1 # $1++
+addi $1, $1, 1 # $1++
 j loop # Restart the loop
-
+```
 We have now learned all of the basic commands. The rest of assembly programming simply amounts to combining these techniques to write more sophisticated
 programs.
 
-Putting it all Together: 
+###Putting it all Together:###
 Here we will write a program to compute the nth digit of the Fibonacci sequence. We will do two versions. We will do the loop version and the recursive
 version. 
 
-We will first implement the loop version. Recall that the Fibonacci sequence is calculated by adding the previous two values in the sequence together,
-where the first number in the sequence is 0 and the second is 1. In puesdocode we have:
+We will first implement the loop version. Recall that the Fibonacci sequence is calculated by adding the previous two values in the sequence together, where the first number in the sequence is 0 and the second is 1. 
+In puesdocode we have:
+```
 fib(n) {
 int i = 2;
 int previous2 = 0;
@@ -155,8 +148,9 @@ int previous1 = 1;
    return previous1; 
  }
 }
-
+```
 In assembly (note this is not the most efficient, but the simplest to read):
+```
 initialization:
 addi $2, $0, n # We load and store the value of n in $2
 addi $3, $0, 0 # We load and store the vaue of i in $3
@@ -184,12 +178,10 @@ add $31, $0, $5 # Set the result to previous1
 j exit # Go to exit
 exit:
 # end of file. code ends here.
+```
 
-
-We will now implement the recursive version. It is less efficient, but teaches about recursion in assembly.
-The recursive formula for the Fibonacci sequence is f(n) = f(n-1) + f(n-2). That is, the nth value in
-the sequence is given by the sum of the n-1th value and the n-2th value. We have the base case that f(0) = 0 and f(1) = 1. A normal psuedocode for
-implementing this recursive equation would be:
+We will now implement the recursive version. It is less efficient, but teaches about recursion in assembly. The recursive formula for the Fibonacci sequence is f(n) = f(n-1) + f(n-2). That is, the nth value in the sequence is given by the sum of the n-1th value and the n-2th value. We have the base case that f(0) = 0 and f(1) = 1. A normal psuedocode for implementing this recursive equation would be:
+```
 fib(n) {
  if (n == 0) {
    return 0;
@@ -199,23 +191,13 @@ fib(n) {
    return (fib(n-1) + fib(n-2));
  }
 }
+```
+We now implement the assembly code. This will be more complicated than the last function. This is because we will need to use the stack to store the data from our succesive calls. For example, when we call fib(3) we will need to loop back to the top of our code due to the recursive calls to fib(2),  fib(1), and fib(0). As we go down this chain of calls we will need to store their results and keep track of which fib(n) we are evaluating, as well as which comes next and in what order. There isn't enough room to do this with the registers. What if n were large? Thus we have to use the stack.
 
-We now implement the assembly code. This will be more complicated than the last function. This is because we will need to use the stack to store the data
-from our succesive calls. For example, when we call fib(3) we will need to loop back to the top of our code due to the recursive calls to fib(2), 
-fib(1), and fib(0). As we go down this chain of calls we will need to store their results and keep track of which fib(n) we are evaluating, as well
-as which comes next and in what order. There isn't enough room to do this with the registers. What if n were large? Thus we have to use the stack.
+However, we are doing a lot more than just simply storing some values here and there in the stack. We are using it to keep track of our entire  algorithm. This means we will need to come up with a system of storing data in the stack that will work for any value of n.  We do this as follows. We will start at index 0 in our stack and work our way up for each succesive call. We will only use one line of stack for each call. This will store the value of n. For more complicated functions, we might use multiple stack lines per call. This would require us to properly index and space our use of the stack.
 
-However, we are doing a lot more than just simply storing some values here and there in the stack. We are using it to keep track of our entire 
-algorithm. This means we will need to come up with a system of storing data in the stack that will work for any value of n.  We do this as follows. 
-We will start at index 0 in our stack and work our way up for each succesive call. We will only use one line of stack for each call. This will
-store the value of n. For more complicated functions, we might use multiple stack lines per call. This would require us to properly index and space our
-use of the stack.
-
-Our plan will thus work as follows. We will begin each call by loading the value of n off of the stack. We will keep track of our index in the stack
-using a register, $3. When we are done with computation we will add the result to register $31 (this works sonce addition is associative and the
-Fibonacci recurrence is reslly just a large sum). When we need to make another call, we will put corresponding values of n onto the stack and
-increment $3 to know where we are to go in the stack.
-
+Our plan will thus work as follows. We will begin each call by loading the value of n off of the stack. We will keep track of our index in the stack using a register, $3. When we are done with computation we will add the result to register $31 (this works sonce addition is associative and the Fibonacci recurrence is reslly just a large sum). When we need to make another call, we will put corresponding values of n onto the stack and increment $3 to know where we are to go in the stack.
+```
 setinput:
 addi $0, $0, 0 # We permanently store the value 0 in $0
 addi $1, $0, 1 # We permanently store the value 1 in $1
@@ -247,7 +229,6 @@ addi $3, $3, -1 # We finished the most recent call and now move back down the st
 j function # We go back to the start
 exit:
 # end of file. code ends here.
-
-Wrap-Up
-Congrats. You now know the basics of assembly. You can find more information in the sources below. If you're up for a challenge try the memoization
-version of fib.
+```
+###Wrap-Up###
+Congrats. You now know the basics of assembly. You can find more information in the sources below. If you're up for a challenge try the memoization version of fib.
