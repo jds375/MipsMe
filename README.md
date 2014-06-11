@@ -86,7 +86,7 @@ We see that branches allow us to control the flow of our code. They are very sim
 ```
 addi $2, $0, 5 # Set $2 to contain the number 5
 increment:
-addi $3, $0, 1 # Increment the contents of $3 by 1
+addi $3, $3, 1 # Increment the contents of $3 by 1
 bne increment, $2, $3 # Jump to the increment: section if the contents of $2 and $3 are not equal, otherwise continue
 addi $1, $0, 1 # Set $1 to contain the number 1
 ```
