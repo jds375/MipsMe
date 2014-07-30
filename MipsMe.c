@@ -58,6 +58,8 @@ command* createCommand() {
   *(c->arg2) = '\0';
   c->arg3 = (char*)malloc(sizeof(char)*ARG3_SIZE);
   *(c->arg3) = '\0';
+  c->text = (char*)malloc(sizeof(char)*CALL_SIZE);
+  *(c->text) = '\0';
   return c;
 }
 
@@ -68,8 +70,8 @@ and current position.
 program* createProgram(int programSize) {
   program *p = (program*)malloc(sizeof(program));
   p->script = (command**)malloc(sizeof(command*)*programSize);
-  p->sectionTable = (hashmap*)malloc(sizeof(hashmap*));
-  p->sectionTable = createHashmap();
+  p->sectionTable = (arraylist*)malloc(sizeof(arraylist*));
+  p->sectionTable = createArraylist();
   p->linePos = 0;
   p->size = programSize;
   return p;
@@ -112,9 +114,9 @@ or numbers.
 */
 int parseRegisterArg(char* registerArg) { 
   if (*(registerArg) == '$') {
-    if (((*(registerArg+2) == ',') || (*(registerArg+2) == '\0')) && (*(registerArg+1)-'0' >= 0) && (*(registerArg+1)-'0' <= 9)) {
+    if (((*(registerArg+2) == ',') || (*(registerArg+2) == '\n')) && (*(registerArg+1)-'0' >= 0) && (*(registerArg+1)-'0' <= 9)) {
       return (*(registerArg+1)-'0');  
-    } else if (((*(registerArg+3) == ',') || (*(registerArg+3) == '\0')) && (((*(registerArg+1)-'0')*10 + (*(registerArg+2)-'0')) >= 0) && (((*(registerArg+1)-'0')*10 + (*(registerArg+2)-'0')) <= 32)) {
+    } else if (((*(registerArg+3) == ',') || (*(registerArg+3) == '\n')) && (((*(registerArg+1)-'0')*10 + (*(registerArg+2)-'0')) >= 0) && (((*(registerArg+1)-'0')*10 + (*(registerArg+2)-'0')) <= 32)) {
       return ((*(registerArg+1)-'0')*10 + (*(registerArg+2)-'0'));
     } else if (((*(registerArg+3) == ',') || (*(registerArg+3) == '\0')) && (*(registerArg+1) == 'v') && (*(registerArg+2) == '0')) { 
       return V0;
@@ -164,6 +166,10 @@ int parseRegisterArg(char* registerArg) {
       return FP;
     } else if (((*(registerArg+3) == ',') || (*(registerArg+3) == '\0')) && (*(registerArg+1) == 'r') && (*(registerArg+2) == 'a')) {
       return RA;
+    } else if (*(registerArg+2) == '\n') {
+      return ((*(registerArg+1)-'0'));
+    } else if (*(registerArg+3) == '\n') {
+      return ((*(registerArg+1)-'0')*10 + (*(registerArg+2)-'0'));
     } else {
       perror("Bad register address.\n"); 
     }
@@ -204,12 +210,13 @@ void executeCurCommand(cpu *cp) {
     cp->prog->linePos++;
     return;
   }
-  if (!strncmp(co->call, "addu", CALL_SIZE)) {
+  printf("Command: %s",co->text);
+  if (!strncmp(co->call, "add", CALL_SIZE)) {
     rd = parseRegisterArg(co->arg1);
     rs = parseRegisterArg(co->arg2);
     rt = parseRegisterArg(co->arg3);
     cp->registers[rd] = cp->registers[rs] + cp->registers[rt];
-  } else if (!strncmp(co->call, "subu", CALL_SIZE)) {
+  } else if (!strncmp(co->call, "sub", CALL_SIZE)) {
     rd = parseRegisterArg(co->arg1);
     rs = parseRegisterArg(co->arg2);
     rt = parseRegisterArg(co->arg3);
@@ -244,12 +251,12 @@ void executeCurCommand(cpu *cp) {
     rs = parseRegisterArg(co->arg2);
     rt = parseRegisterArg(co->arg3);
     cp->registers[rd] = cp->registers[rs] >> cp->registers[rt];
-  } else if (!strncmp(co->call,"sltu", CALL_SIZE)) {
+  } else if (!strncmp(co->call,"slt", CALL_SIZE)) {
     rd = parseRegisterArg(co->arg1);
     rs = parseRegisterArg(co->arg2);
     rt = parseRegisterArg(co->arg3);
     cp->registers[rd] = cp->registers[rs] < cp->registers[rt];
-  } else if (!strncmp(co->call,"sltu", CALL_SIZE)) {
+  } else if (!strncmp(co->call,"slt", CALL_SIZE)) {
     rd = parseRegisterArg(co->arg1);
     rs = parseRegisterArg(co->arg2);
     rt = parseRegisterArg(co->arg3);
@@ -296,7 +303,7 @@ void executeCurCommand(cpu *cp) {
     cp->registers[rd] = cp->registers[rs] < rt;
   } else if (!strncmp(co->call,"j", CALL_SIZE)) {
     cutNewline(co->arg1);
-    jump = hashmapGet(cp->prog->sectionTable,co->arg1);
+    jump = arraylistFind(cp->prog->sectionTable,co->arg1);
   } else if (!strncmp(co->call,"jr", CALL_SIZE)) {
     cutNewline(co->arg1);
     rd = parseRegisterArg(co->arg1);
@@ -305,29 +312,31 @@ void executeCurCommand(cpu *cp) {
   } else if (!strncmp(co->call,"jal",CALL_SIZE)) {
     cutNewline(co->arg1);
     cp->registers[RA] = cp->prog->linePos+1;
-    jump = hashmapGet(cp->prog->sectionTable,co->arg1);
+    jump = arraylistFind(cp->prog->sectionTable,co->arg1);
   } else if (!strncmp(co->call,"beq",CALL_SIZE)) {
     cutComma(co->arg1);
     rs = parseRegisterArg(co->arg2);
     rt = parseRegisterArg(co->arg3);
     if (cp->registers[rs] == cp->registers[rt]) {
-      jump = hashmapGet(cp->prog->sectionTable,co->arg1);
+      jump = arraylistFind(cp->prog->sectionTable,co->arg1);
     }
   } else if (!strncmp(co->call,"bne",CALL_SIZE)) {
     cutComma(co->arg1);
     rs = parseRegisterArg(co->arg2);
     rt = parseRegisterArg(co->arg3);
     if (cp->registers[rs] != cp->registers[rt]) {
-      jump = hashmapGet(cp->prog->sectionTable,co->arg1);
+      jump = arraylistFind(cp->prog->sectionTable,co->arg1);
     }
   } else if (!strncmp(co->call,"lb",CALL_SIZE)) {
+    co->arg2[strlen(co->arg2)-1] = ',';
     rs = parseRegisterArg(co->arg1);
     rt = parseRegisterArg(co->arg2);
-    cp->registers[rs] = cp->stack[rt];
+    cp->registers[rs] = cp->stack[cp->registers[rt]];
   } else if (!strncmp(co->call,"sb",CALL_SIZE)) {
+    co->arg2[strlen(co->arg2)-1] = ',';
     rs = parseRegisterArg(co->arg1);
     rt = parseRegisterArg(co->arg2);
-    cp->stack[rt] = cp->registers[rs];
+    cp->stack[cp->registers[rt]] = cp->registers[rs];
   }
   if (jump >= 0) {
     cp->prog->linePos = jump+isJr;
@@ -343,6 +352,7 @@ is simply the call alone.
 */
 command* parseCommand(char *instruction) {
   command *c = createCommand();
+  strcpy(c->text, instruction);
   int previ = 0;
   int i;
   if ((*(instruction+strlen(instruction)-2)) == COLON_ASCII) {
@@ -365,7 +375,7 @@ command* parseCommand(char *instruction) {
 	  previ = i;
         } else if (*(c->arg3) == '\0') {
 	  strncpy(c->arg3, instruction+previ+1, i-previ);
-	  *(c->arg3+i-previ-2) = '\0';
+	  *(c->arg3+i-previ-1) = '\0';
 	  previ = i;
         }
       }
@@ -407,7 +417,10 @@ cpu* loadCpu(const char *filename) {
     while (fgets(line, sizeof(line), file) != NULL ) {
       cp->prog->script[i] = parseCommand(line);
       if (cp->prog->script[i]->header) {
-	hashmapPut(p->sectionTable, cp->prog->script[i]->call, i);
+	tuple* t = createTuple();
+	t->key = cp->prog->script[i]->call;
+	t->value = i;
+	arraylistAdd(p->sectionTable, t);
       }
       i++;
     }
@@ -446,6 +459,7 @@ prints contents of registers
 */
 void displayRegisters(cpu *cp) {
   int i;
+  printf("Register Contents:\n");
   for (i = 0; i < NUM_REGISTERS; i++) {
     printf("$%d = %d\n", i, cp->registers[i]);
   }

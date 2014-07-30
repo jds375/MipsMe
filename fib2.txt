@@ -1,0 +1,31 @@
+setinput:
+addi $0, $0, 0
+addi $1, $0, 1
+addi $2, $0, 6
+sb $2, $0
+function:
+lb $2, $3
+zerocheck:
+beq returnzero, $0, $2
+onecheck:
+beq returnone, $1, $2
+recurse:
+addi $4, $2, -2
+addi $5, $2, -1
+addi $6, $3, 1
+sb $4, $3
+sb $5, $6
+addi $3, $3, 1
+j function
+returnzero:
+add $31, $31, $0
+j nextcall
+returnone:
+add $31, $31, $1
+j nextcall
+nextcall:
+beq exit, $3, $0
+addi $3, $3, -1
+j function
+exit:
+add $0, $0, $0

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "HashMap.h"
+#include "ArrayList.h"
 
 #define LOAD_FACTOR 0.75
 
@@ -73,69 +73,17 @@ tuple* arraylistRemove(arraylist* a, int index) {
   return removed;
 }
 
-hashmap* createHashmap() {
-  hashmap* h = (hashmap*)malloc(sizeof(hashmap));
-  h->map = (arraylist**)malloc(2*sizeof(arraylist*));
-  h->map[0] = createArraylist();
-  h->map[1] = createArraylist();
-  h->size = 0;
-  h->buckets = 2;
-  return h;
-}
-
 /*
-djb2 hash
+Returns the value associated with the key of the tuples
+in the arraylist. Returns -1 if fails.
 */
-int hashCode(char *key, int n) {
-  unsigned long hash = 5381;
-  int c;
-  for (int i = 0; i < n; i++) {
-    c = key[i];
-    hash = hash * 33 + c;
-  }
-  return (int)hash;
-}
 
-/*
-Puts a key-value pair in the table. Assumes no repeats.
-Assumes all values are non-negative.
-*/
-void hashmapPut(hashmap* h, char* k, int v) {
-  tuple* t = createTuple();
-  t->key = k;
-  t->value = v;
-  h->size++;
-  if (((float)h->size/(float)h->buckets) > LOAD_FACTOR) {
-    h->map = realloc(h->map, 2*h->buckets*sizeof(arraylist**));
-    h->buckets = 2*h->buckets;
-    int i;
-    for (i = h->buckets/2; i < h->buckets; i++) {
-      h->map[i] = createArraylist();
-    }
+int arraylistFind(arraylist* a, char* search) {
+  int i;
+  for (i = 0; i < a->length; i++) {
+    if (!strcmp(a->list[i]->key, search)) {
+      return a->list[i]->value;
+    } 
   }
-  int hash = hashCode(t->key, strlen(t->key)) % h->buckets;
-  arraylistAdd(h->map[hash], t);
+  return -1;
 }
-
-/*
-Returns the corresponding value. If not in the table,
-returns -1.
-*/
-int hashmapGet(hashmap* h, char* key) {
-  int hash = hashCode(key, strlen(key)) % h->buckets;
-  if (h->map[hash]->length > 0) {
-    int i;
-    for (i = 0; i < h->map[hash]->length; i++) {
-      if (!strcmp(key, arraylistGet(h->map[hash], i)->key)) {
-	return arraylistGet(h->map[hash], i)->value;
-      }
-    }
-    return -1;
-  } else {
-    return -1;
-  }
-}
-
-/*int main(int argc, char *argv[]) {
-  return 0;
-}*/
