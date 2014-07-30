@@ -139,7 +139,7 @@ int previous1 = 1;
  } else if (n == 1) {
    return previous1;
  } else {
-   for (int i = 2; i <= n; i++) {
+   for (int i = 1; i < n; i++) {
      int next = previous2 + previous1;
      previous2 = previous1;
      previous1 = next;
