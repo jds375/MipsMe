@@ -151,32 +151,33 @@ int previous1 = 1;
 In assembly (note this is not the most efficient, but the simplest to read):
 ```
 initialization:
-addi $2, $0, n # We load and store the value of n in $2
-addi $3, $0, 0 # We load and store the vaue of i in $3
-addi $4, $0, 0 # We load and store the value of previous2 in $4
-addi $5, $0, 1 # We load and store the value of previous1 in $5
-addi $31, $0, 0 # We use this as the result register, which is defaulted to 0
-addi $0, $0, 0 # We permanently store the value 0 in $0
-addi $1, $0, 1 # We permanently store the value 1 in $20
-zerocheck:
-beq exit, $0, $2 # If the value in the register holding n is 0 jump to exit since there the return is defaulted to 0 anyway; else continue in order
+initialization:
+addi $2, $0, n # We keep the value of n in $2
+addi $3, $0, 1 # We keep the vlaue of i in $3
+addi $4, $0, 0 # We keep the value of previous2 in $4
+addi $5, $0, 1 # We keep the value of previous1 in $5
+addi $31, $0, 0 # We store the final result in $31 by convention
+addi $0, $0, 0 # We permanently store 0 in $0
+addi $1, $0, 1 # We permanently store 1 in $1
+zerocheck: 
+beq exit, $0, $2 # We check if n==0 and exit if so
 onecheck:
-beq returnone, $1, $2 # If the vaue in the register holding n is 1 jump to segment that will return 1; else continue in order
-forloop:
-beq returnresult, $3, $2 # If the value of i is equal to that of n, then the loop condition is no longer valid and we should return; otherwise do loop
-add $6, $4, $5 # We compute the sum of previous2 and previous1 and store it in $6, which holds the value 'next' from the psuedocode
-add $4, $0, $5 # We set previous2 to the value of previous1 by overriding it with 0 + the value in previous1, which is just previous1
-add $5, $0, $6 # We set previous1 to the value of previous2 by overriding it with 0 + the value in next, which is just next
-addi $3, $3, 4 # i++
-j forloop # Restart loop
-returnone:
-add $31, $0, $1 # We add 1 to the return register which is initially 0 to have a return value of 1
-j exit # Go to exit the file by going to the final line
+beq returnone, $1, $2 # We check if n==1 and return 1 if so
+forloop: # Otherwise we go to our loop
+add $6, $4, $5 # We store 'next' in $6
+add $4, $0, $5 # We do previous2 = previous1
+add $5, $0, $6 # We do previous1 = next
+addi $3, $3, 1 # We do i++
+beq returnresult, $3, $2 # We end the loop if i==n
+j forloop # If not, we redo the loop
+returnone: 
+add $31, $31, $1 # We add 1 to the final result and exit if returnone branch is made
+j exit
 returnresult:
-add $31, $0, $5 # Set the result to previous1
-j exit # Go to exit
+add $31, $31, $5 # We set the final result to previous1
+j exit
 exit:
-# end of file. code ends here.
+add $0, $0, $0 # We do nothing to exit
 ```
 
 We will now implement the recursive version. It is less efficient, but teaches about recursion in assembly. The recursive formula for the Fibonacci sequence is f(n) = f(n-1) + f(n-2). That is, the nth value in the sequence is given by the sum of the n-1th value and the n-2th value. We have the base case that f(0) = 0 and f(1) = 1. A normal psuedocode for implementing this recursive equation would be:
@@ -198,36 +199,37 @@ However, we are doing a lot more than just simply storing some values here and t
 Our plan will thus work as follows. We will begin each call by loading the value of n off of the stack. We will keep track of our index in the stack using a register, $3. When we are done with computation we will add the result to register $31 (this works sonce addition is associative and the Fibonacci recurrence is reslly just a large sum). When we need to make another call, we will put corresponding values of n onto the stack and increment $3 to know where we are to go in the stack.
 ```
 setinput:
-addi $0, $0, 0 # We permanently store the value 0 in $0
-addi $1, $0, 1 # We permanently store the value 1 in $1
-addi $2, $0, n # Set input here. This is the register we will store the current value of n in
-sb $2, $0 # Place n in the stack. It will be used as the current n since $3, our call index, defaults to 0
-function:
-lb $2, $3 # We load and store the value of n in $2 based off the index in the stack we are on, $3
+addi $0, $0, 0 # We permanently store $0 in 0
+addi $1, $0, 1 # We permanently store $0 in 0
+addi $2, $0, n # We store the current value of n for the current call in $2
+addi $3, $0, $0 # We store the call index in $3. This is the stack index where we store n for this call
+sb $2, $0 # We put the starting value of n in the stack at position 0
+function: # We run our function
+lb $2, $3 # We load the value of n for this call into the n register ($2)
 zerocheck:
-beq returnzero, $0, $2 # If the value in the register holding n is 0 jump to segment that will return 0; else continue in order
+beq returnzero, $0, $2 # If we have n==0, we increment the final result by 0 (Base Case #0)
 onecheck:
-beq returnone, $1, $2 # If the vaue in the register holding n is 1 jump to segment that will return 1; else continue in order
-recurse:
-addi $4, $2, -2 # Store n-2 in $4
-addi $5, $2, -1 # Store n-1 in $5
-addi $6, $3, 1 # Store the stack index plus one
-sw $4, $3 # Override the n value in the current stack position to be n-2 since we are done with the current n and will reuse its stack space
-sw $5, $6 # Put n-1 at the next stack position up
-addi $3, $3, 1 # Increment our position in the stack by 1 to accomdate the new call (we only increment by 1 since we overrode the current spot to save room)
-j function # Recurse
+beq returnone, $1, $2 # If we have n==1, we increment the final result by 1 (Base Case #1)
+recurse: # We perform our recursive step
+addi $4, $2, -2 # We calculate n-2
+addi $5, $2, -1 # We calculate n-1
+addi $6, $3, 1 # We get the call index that comes after the one we are on
+sb $4, $3 # We replace the current value of n with n-2 in the stack
+sb $5, $6 # We replace the following value of n with n-1 in the next spot in the stack
+addi $3, $3, 1 # We increment our spot in the stack by 1
+j function # We recurse
 returnzero:
-add $31, $31, $0 # We add 0 to the sum of the recursive calls
-j nextcall # We jump to the code that sets up the stack for the next call
+add $31, $31, $0
+j nextcall
 returnone:
-add $31, $31, $1 # We add 1 to the sum of the recursive calls
-j nextcall # We jump to the code that sets up the stack for the next call
+add $31, $31, $1
+j nextcall
 nextcall:
-beq exit, $3, $0 # If the stack index we are on is 0 there are no more calls to evaluate so we exit; otherwise we set up the next call
-addi $3, $3, -1 # We finished the most recent call and now move back down the stack
-j function # We go back to the start
+beq exit, $3, $0 # If we are at the bottom spot in the stack there are no more recursive calls and we are done
+addi $3, $3, -1 # Otherwise, we move down one spot in the stack
+j function
 exit:
-# end of file. code ends here.
+add $0, $0, $0
 ```
 ###Wrap-Up###
-Congrats. You now know the basics of assembly. You can find more information in the sources below. If you're up for a challenge try the memoization version of fib.
+Congrats. You now know the basics of assembly. You can find more information in the sources below. If you're up for a challenge try the memoization version of fib().
