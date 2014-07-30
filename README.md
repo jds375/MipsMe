@@ -132,7 +132,6 @@ We will first implement the loop version. Recall that the Fibonacci sequence is 
 In puesdocode we have:
 ```
 fib(n) {
-int i = 2;
 int previous2 = 0;
 int previous1 = 1;
  if (n == 0) {
@@ -140,7 +139,7 @@ int previous1 = 1;
  } else if (n == 1) {
    return previous1;
  } else {
-   for (i = 0; i < n; i++) {
+   for (int i = 2; i <= n; i++) {
      int next = previous2 + previous1;
      previous2 = previous1;
      previous1 = next;
